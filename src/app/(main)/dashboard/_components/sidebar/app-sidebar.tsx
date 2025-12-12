@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { Settings, CircleHelp, Search, Database, ClipboardList, File, Command } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 
 import {
   Sidebar,
@@ -59,15 +60,23 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const sidebarVariant = usePreferencesStore((s) => s.sidebarVariant);
-  const sidebarCollapsible = usePreferencesStore((s) => s.sidebarCollapsible);
+  const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
+    useShallow((s) => ({
+      sidebarVariant: s.sidebarVariant,
+      sidebarCollapsible: s.sidebarCollapsible,
+      isSynced: s.isSynced,
+    })),
+  );
+
+  const variant = isSynced ? sidebarVariant : props.variant;
+  const collapsible = isSynced ? sidebarCollapsible : props.collapsible;
 
   return (
-    <Sidebar {...props} variant={sidebarVariant} collapsible={sidebarCollapsible}>
+    <Sidebar {...props} variant={variant} collapsible={collapsible}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:p-1.5!">
+            <SidebarMenuButton asChild>
               <Link prefetch={false} href="/dashboard/default">
                 <Command />
                 <span className="text-base font-semibold">{APP_CONFIG.name}</span>
